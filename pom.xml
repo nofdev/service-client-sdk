@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.shangpin</groupId>
-    <artifactId>service-client-sdk</artifactId>
+    <artifactId>service-client-parent</artifactId>
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <dependencies>
