@@ -19,13 +19,14 @@ public class ExceptionUtil {
     public static void main(String[] args) throws IOException {
         String str = "{\"name\":\"com.shangpin.http.ProxyException\",\"msg\":\"测试是否成功\"}";
         try {
-            isExistClass(str);
+            Class<?> c = isExistClass(str);
+            System.out.println(c);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static Class<?> isExistClass(String error) throws Exception{
+    public static Class<?> isExistClass(String error){
         Class<?> cl = null;
         try {
             ObjectMapper objectMapper = new ObjectMapper();
