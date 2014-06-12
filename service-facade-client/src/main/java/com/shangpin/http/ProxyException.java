@@ -15,10 +15,6 @@ public class ProxyException extends RuntimeException{
 
     public ProxyException(String msg){
         super(msg);
-
     }
 
-    public String printMsg(){
-        return super.getMessage();
-    }
 }

@@ -48,12 +48,13 @@ public class HttpJsonFacadeProxy implements InvocationHandler {
         if (jsonNode.get("err") == null || jsonNode.get("err") instanceof NullNode) {
             return objectMapper.convertValue(jsonNode.get("val"), method.getReturnType());
         }else{
-            Class<?> c = ExceptionUtil.isExistClass(jsonNode.get("err").textValue());
-            if(c == null){
-                new ProxyException(objectMapper.readTree(jsonNode.get("err").textValue()).get("msg").textValue());
+            JsonNode errMessage = objectMapper.readTree(jsonNode.get("err").textValue());
+            if(!ExceptionUtil.isExistClass(jsonNode.get("name").textValue())){
+                throw new ProxyException(errMessage.get("msg").textValue());
+            }else{
+                throw ExceptionUtil.getThrowableInstance(errMessage.get("name").textValue(),errMessage.get("msg").textValue());
             }
         }
-        return null;
     }
 
 //    HttpJsonFacadeProxy(Class<?> httpJsonFacadeClass) {
@@ -61,9 +62,7 @@ public class HttpJsonFacadeProxy implements InvocationHandler {
 //    }
 
     public static Object getInstance(Class<?> inter,String url) {
-
-            Class<?>[] interfaces = {inter};
-
+        Class<?>[] interfaces = {inter};
         return Proxy.newProxyInstance(inter.getClassLoader(), interfaces, new HttpJsonFacadeProxy(inter, url));
     }
 
