@@ -16,16 +16,6 @@ import java.util.Map;
  */
 public class ExceptionUtil {
 
-    public static void main(String[] args) throws IOException {
-        String str = "{\"name\":\"com.shangpin.http.ProxyException\",\"msg\":\"测试是否成功\"}";
-        try {
-            Class<?> c = isExistClass(str);
-            System.out.println(c);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     public static Class<?> isExistClass(String error){
         Class<?> cl = null;
         try {
@@ -35,8 +25,6 @@ public class ExceptionUtil {
             Class[] params = {String.class};
             Constructor constructor = cl.getConstructor(params);//找到异常类中带有一个String参数的 构造函数
             Throwable thowable = (Throwable)constructor.newInstance(new Object[]{jsonNode.get("msg").textValue()});
-            //String result = (String)cl.getDeclaredMethod("printMsg").invoke(thowable);
-            //assert !"1测试是123123否成功".equals(result);
         } catch(Exception e) {
             e.printStackTrace();
         }
