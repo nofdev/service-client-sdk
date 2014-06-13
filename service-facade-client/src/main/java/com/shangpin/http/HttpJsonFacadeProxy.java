@@ -44,15 +44,14 @@ public class HttpJsonFacadeProxy implements InvocationHandler {
 
         String result = HttpUtil.post(postUrl, params);
         JsonNode jsonNode = objectMapper.readTree(result);
-
+        logger.debug("The request return " + result);
         if (jsonNode.get("err") == null || jsonNode.get("err") instanceof NullNode) {
             return objectMapper.convertValue(jsonNode.get("val"), method.getReturnType());
         }else{
-            JsonNode errMessage = objectMapper.readTree(jsonNode.get("err").textValue());
-            if(!ExceptionUtil.isExistClass(jsonNode.get("name").textValue())){
-                throw new ProxyException(errMessage.get("msg").textValue());
+            if(!ExceptionUtil.isExistClass(jsonNode.path("err").get("name").textValue())){
+                throw new ProxyException(jsonNode.path("err").get("msg").textValue());
             }else{
-                throw ExceptionUtil.getThrowableInstance(errMessage.get("name").textValue(),errMessage.get("msg").textValue());
+                throw ExceptionUtil.getThrowableInstance(jsonNode.path("err").get("name").textValue(),jsonNode.path("err").get("msg").textValue());
             }
         }
     }
