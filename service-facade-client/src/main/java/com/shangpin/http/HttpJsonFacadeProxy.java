@@ -8,7 +8,6 @@ import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -23,6 +22,21 @@ public class HttpJsonFacadeProxy implements InvocationHandler {
 
     private Class<?> inter;
     private String url;
+    private int defaultSoTimeout;
+    private int defaultConnectionTimeout;
+    private PoolConnectionManager connectionManager;
+
+    public void setDefaultConnectionTimeout(int defaultConnectionTimeout) {
+        this.defaultConnectionTimeout = defaultConnectionTimeout;
+    }
+
+    public void setDefaultSoTimeout(int defaultSoTimeout) {
+        this.defaultSoTimeout = defaultSoTimeout;
+    }
+
+    public void setConnectionManager(PoolConnectionManager connectionManager) {
+        this.connectionManager = connectionManager;
+    }
 
     HttpJsonFacadeProxy(Class<?> inter, String url) {
         this.inter = inter;
@@ -42,7 +56,7 @@ public class HttpJsonFacadeProxy implements InvocationHandler {
         String paramsStr = objectMapper.writeValueAsString(args);
         params.add(new BasicNameValuePair("params", paramsStr));
 
-        String result = HttpUtil.post(postUrl, params);
+        String result = HttpUtil.post(postUrl, params,connectionManager);
         JsonNode jsonNode = objectMapper.readTree(result);
         logger.debug("The request return " + result);
         if (jsonNode.get("err") == null || jsonNode.get("err") instanceof NullNode) {
@@ -55,10 +69,6 @@ public class HttpJsonFacadeProxy implements InvocationHandler {
             }
         }
     }
-
-//    HttpJsonFacadeProxy(Class<?> httpJsonFacadeClass) {
-//        this.httpJsonFacadeClass = httpJsonFacadeClass;
-//    }
 
     public static Object getInstance(Class<?> inter,String url) {
         Class<?>[] interfaces = {inter};
