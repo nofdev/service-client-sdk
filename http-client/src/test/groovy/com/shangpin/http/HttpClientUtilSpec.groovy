@@ -3,11 +3,10 @@ package com.shangpin.http
 import org.apache.http.conn.ConnectionPoolTimeoutException
 import org.mockserver.integration.ClientAndServer
 import org.mockserver.model.Delay
+import org.mockserver.model.Header
 import org.mockserver.model.HttpRequest
 import org.mockserver.model.HttpResponse
 import spock.lang.Specification
-import spock.util.concurrent.AsyncConditions
-import spock.util.concurrent.PollingConditions
 
 import java.util.concurrent.TimeUnit
 
@@ -68,7 +67,6 @@ class HttpClientUtilSpec extends Specification {
         def connectionManagerFactory = new PoolingConnectionManagerFactory()
         connectionManagerFactory.setMaxTotalConnection(3)
         connectionManagerFactory.setMaxPerRoute(3)
-        def cond = new AsyncConditions()
 
         when:
         Thread.start {
