@@ -50,7 +50,7 @@ public class HttpJsonFacadeProxy implements InvocationHandler {
         params.put("params", paramsStr);
 
         HttpClientUtil httpClientUtil = new HttpClientUtil(connectionManager, defaultRequestConfig);
-        String result = httpClientUtil.post(postUrl, params);
+        String result = httpClientUtil.post(postUrl, params).getBody();
         JsonNode jsonNode = objectMapper.readTree(result);
         logger.debug("The request return " + result);
         if (jsonNode.get("err") == null || jsonNode.get("err") instanceof NullNode) {

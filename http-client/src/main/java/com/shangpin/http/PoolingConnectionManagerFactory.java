@@ -11,6 +11,9 @@ import java.util.concurrent.TimeUnit;
  * Created by Qiang on 7/3/14.
  */
 public class PoolingConnectionManagerFactory {
+
+    private PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
+
     //<!-- 连接池设置 -->
     /**
      * 最大连接数，缺省为500
@@ -27,8 +30,7 @@ public class PoolingConnectionManagerFactory {
     private long idleConnTimeout = 60000;
 
     Object getObject() {
-        PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
-
+//        PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
         SocketConfig socketConfig = SocketConfig.custom().setTcpNoDelay(true).build();
         ConnectionConfig connectionConfig = ConnectionConfig.custom().setCharset(Consts.UTF_8).build();
 
