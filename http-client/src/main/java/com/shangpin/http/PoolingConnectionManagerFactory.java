@@ -16,10 +16,11 @@ public class PoolingConnectionManagerFactory {
      * 最大连接数，缺省为500
      */
     private int maxTotalConnection = 500;
+
     /**
-     * 每个路由最大的连接数 默认为50 0为不限制
+     * 每个路由最大的连接数 默认为50
      */
-    private int maxPerRoute = 0;
+    private int maxPerRoute = 50;
     /**
      * 闲置超时时间，缺省为60秒钟
      */
@@ -50,5 +51,9 @@ public class PoolingConnectionManagerFactory {
 
     public void setMaxTotalConnection(int maxTotalConnection) {
         this.maxTotalConnection = maxTotalConnection;
+    }
+
+    public void setMaxPerRoute(int maxPerRoute) {
+        this.maxPerRoute = maxPerRoute;
     }
 }

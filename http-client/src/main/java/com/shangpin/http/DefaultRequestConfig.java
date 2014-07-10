@@ -12,11 +12,11 @@ public class DefaultRequestConfig {
     /**
      * 连接超时时间，缺省为5秒钟
      */
-    private int defaultConnectionTimeout = 5000;
+    private int defaultConnectionTimeout = 10000;
     /**
      * 从连接池中请求一个连接的超时时间，默认等待HttpConnectionManager返回连接超时（只有在达到最大连接数时起作用）：1秒
      */
-    private int defaultConnectionRequestTimeout = 3000;
+    private int defaultConnectionRequestTimeout = 1000;
 
     public int getDefaultSoTimeout() {
         return defaultSoTimeout;
