@@ -1,5 +1,6 @@
 package com.shangpin.http;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.NullNode;
@@ -26,12 +27,12 @@ public class HttpJsonFacadeProxy implements InvocationHandler {
     private Class<?> inter;
     private String url;
     private DefaultRequestConfig defaultRequestConfig = new DefaultRequestConfig();
-    private PoolingHttpClientConnectionManager connectionManager;
+    private PoolingConnectionManagerFactory connectionManagerFactory = new PoolingConnectionManagerFactory();
 
-    HttpJsonFacadeProxy(Class<?> inter, String url, PoolingHttpClientConnectionManager connectionManager, DefaultRequestConfig defaultRequestConfig) {
+    HttpJsonFacadeProxy(Class<?> inter, String url, PoolingConnectionManagerFactory connectionManagerFactory, DefaultRequestConfig defaultRequestConfig) {
         this.inter = inter;
         this.url = url;
-        this.connectionManager = connectionManager;
+        this.connectionManagerFactory = connectionManagerFactory;
         this.defaultRequestConfig = defaultRequestConfig;
     }
 
@@ -49,7 +50,7 @@ public class HttpJsonFacadeProxy implements InvocationHandler {
         String paramsStr = objectMapper.writeValueAsString(args);
         params.put("params", paramsStr);
 
-        HttpClientUtil httpClientUtil = new HttpClientUtil(connectionManager, defaultRequestConfig);
+        HttpClientUtil httpClientUtil = new HttpClientUtil(connectionManagerFactory, defaultRequestConfig);
         String result = httpClientUtil.post(postUrl, params).getBody();
         JsonNode jsonNode = objectMapper.readTree(result);
         logger.debug("The request return " + result);
@@ -66,7 +67,23 @@ public class HttpJsonFacadeProxy implements InvocationHandler {
 
     public Object getObject() {
         Class<?>[] interfaces = {inter};
-        return Proxy.newProxyInstance(inter.getClassLoader(), interfaces, new HttpJsonFacadeProxy(inter, url, connectionManager, defaultRequestConfig));
+        return Proxy.newProxyInstance(inter.getClassLoader(), interfaces, new HttpJsonFacadeProxy(inter, url, connectionManagerFactory, defaultRequestConfig));
+    }
+
+    public void setInter(Class<?> inter) {
+        this.inter = inter;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public void setDefaultRequestConfig(DefaultRequestConfig defaultRequestConfig) {
+        this.defaultRequestConfig = defaultRequestConfig;
+    }
+
+    public void setConnectionManagerFactory(PoolingConnectionManagerFactory connectionManagerFactory) {
+        this.connectionManagerFactory = connectionManagerFactory;
     }
 
 }

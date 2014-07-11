@@ -33,7 +33,7 @@ class HttpClientUtilSpec extends Specification {
     def "一个基本的POST请求测试"() {
         setup:
         mockServer.when(HttpRequest.request().withURL(url)).respond(HttpResponse.response().withStatusCode(200).withHeader(new Header("Content-Type", "text/html")).withBody("hello world"))
-        def httpMessage = new HttpClientUtil((new PoolingConnectionManagerFactory()).getObject()).post(url, [:])
+        def httpMessage = new HttpClientUtil(new PoolingConnectionManagerFactory()).post(url, [:])
         expect:
         httpMessage.body == "hello world"
         httpMessage.statusCode == 200
@@ -46,7 +46,7 @@ class HttpClientUtilSpec extends Specification {
         def defaultRequestConfig = new DefaultRequestConfig()
         defaultRequestConfig.setDefaultSoTimeout(1000)
         when:
-        new HttpClientUtil((new PoolingConnectionManagerFactory()).getObject(), defaultRequestConfig).post(url, [:])
+        new HttpClientUtil(new PoolingConnectionManagerFactory(), defaultRequestConfig).post(url, [:])
         then:
         thrown(IOException)
     }
@@ -56,7 +56,7 @@ class HttpClientUtilSpec extends Specification {
         mockServer.when(HttpRequest.request().withURL(url)).respond(HttpResponse.response().withStatusCode(500));
         def defaultRequestConfig = new DefaultRequestConfig()
         expect:
-        new HttpClientUtil((new PoolingConnectionManagerFactory()).getObject(), defaultRequestConfig).post(url, [:]).statusCode == 500
+        new HttpClientUtil(new PoolingConnectionManagerFactory(), defaultRequestConfig).post(url, [:]).statusCode == 500
     }
 
     def "测试连接池，如果连接池数量不够，等待获取连接超时的话会抛出ConnectionPoolTimeoutException"() {
@@ -70,18 +70,18 @@ class HttpClientUtilSpec extends Specification {
 
         when:
         Thread.start {
-            new HttpClientUtil(connectionManagerFactory.getObject(), defaultRequestConfig).post(url, [:])
+            new HttpClientUtil(connectionManagerFactory, defaultRequestConfig).post(url, [:])
         }
 
         Thread.start {
-            new HttpClientUtil(connectionManagerFactory.getObject(), defaultRequestConfig).post(url, [:])
+            new HttpClientUtil(connectionManagerFactory, defaultRequestConfig).post(url, [:])
         }
 
         Thread.start {
-            new HttpClientUtil(connectionManagerFactory.getObject(), defaultRequestConfig).post(url, [:])
+            new HttpClientUtil(connectionManagerFactory, defaultRequestConfig).post(url, [:])
         }
         sleep(1000)
-        new HttpClientUtil(connectionManagerFactory.getObject(), defaultRequestConfig).post(url, [:])
+        new HttpClientUtil(connectionManagerFactory, defaultRequestConfig).post(url, [:])
         then:
         thrown(ConnectionPoolTimeoutException)
     }

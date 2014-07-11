@@ -17,12 +17,5 @@
             <artifactId>httpclient</artifactId>
             <version>4.3.3</version>
         </dependency>
-        <dependency>
-            <groupId>org.mock-server</groupId>
-            <artifactId>mockserver-netty</artifactId>
-            <version>3.4</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
-
 </project>

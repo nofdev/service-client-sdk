@@ -25,16 +25,16 @@ import java.util.Map;
 public class HttpClientUtil {
     private static Logger logger = Logger.getLogger(HttpClientUtil.class);
 
-    private PoolingHttpClientConnectionManager connectionManager;
+    private PoolingConnectionManagerFactory connectionManagerFactory;
     private DefaultRequestConfig defaultRequestConfig;
 
-    public HttpClientUtil(PoolingHttpClientConnectionManager connectionManager,DefaultRequestConfig defaultRequestConfig) {
-        this.connectionManager = connectionManager;
+    public HttpClientUtil(PoolingConnectionManagerFactory connectionManagerFactory,DefaultRequestConfig defaultRequestConfig) {
+        this.connectionManagerFactory = connectionManagerFactory;
         this.defaultRequestConfig = defaultRequestConfig;
     }
 
-    public HttpClientUtil(PoolingHttpClientConnectionManager connectionManager) {
-        this.connectionManager = connectionManager;
+    public HttpClientUtil(PoolingConnectionManagerFactory connectionManagerFactory) {
+        this.connectionManagerFactory = connectionManagerFactory;
         this.defaultRequestConfig = new DefaultRequestConfig();
     }
 
@@ -67,7 +67,7 @@ public class HttpClientUtil {
 
     public HttpMessageSimple post(String url, Map<String, String> params) throws IOException {
         HttpClient httpClient = HttpClients.custom()
-                .setConnectionManager(connectionManager)
+                .setConnectionManager((PoolingHttpClientConnectionManager)connectionManagerFactory.getObject())
                 .build();
         HttpPost post = new HttpPost(url);
         RequestConfig requestConfig = RequestConfig.custom()
