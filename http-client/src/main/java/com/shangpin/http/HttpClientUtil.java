@@ -38,6 +38,14 @@ public class HttpClientUtil {
         this.defaultRequestConfig = new DefaultRequestConfig();
     }
 
+    /**
+     * 默认构造参数，全部使用默认连接池设置，不建议使用
+     */
+    public HttpClientUtil(){
+        this.connectionManagerFactory = new PoolingConnectionManagerFactory();
+        this.defaultRequestConfig = new DefaultRequestConfig();
+    }
+
 //    public String post(String url, Map<String, String> params) throws IOException {
 //        HttpClient httpClient = HttpClients.custom()
 //                .setConnectionManager(connectionManager)
@@ -98,4 +106,6 @@ public class HttpClientUtil {
         post.releaseConnection();
         return new HttpMessageSimple(statusCode,contentType,body);
     }
+
+
 }

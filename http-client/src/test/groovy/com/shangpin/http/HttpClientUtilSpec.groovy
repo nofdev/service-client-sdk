@@ -67,7 +67,6 @@ class HttpClientUtilSpec extends Specification {
         def connectionManagerFactory = new PoolingConnectionManagerFactory()
         connectionManagerFactory.setMaxTotalConnection(3)
         connectionManagerFactory.setMaxPerRoute(3)
-
         when:
         Thread.start {
             new HttpClientUtil(connectionManagerFactory, defaultRequestConfig).post(url, [:])
@@ -80,9 +79,51 @@ class HttpClientUtilSpec extends Specification {
         Thread.start {
             new HttpClientUtil(connectionManagerFactory, defaultRequestConfig).post(url, [:])
         }
+
         sleep(1000)
         new HttpClientUtil(connectionManagerFactory, defaultRequestConfig).post(url, [:])
         then:
         thrown(ConnectionPoolTimeoutException)
+    }
+
+    def "测试定期清理未关闭的连接池"() {
+
+    }
+
+//    def "测试并发"(){
+//        setup:
+//        mockServer.when(HttpRequest.request().withURL(url)).respond(HttpResponse.response().withStatusCode(200).withBody("hello world").withDelay(new Delay(TimeUnit.SECONDS, 1)))
+//        def defaultRequestConfig = new DefaultRequestConfig()
+//        defaultRequestConfig.setDefaultConnectionRequestTimeout(20000)
+//        def connectionManagerFactory = new PoolingConnectionManagerFactory()
+//        connectionManagerFactory.setMaxTotalConnection(5)
+//        connectionManagerFactory.setMaxPerRoute(5)
+//
+////        for (int i=0;i<50;i++){
+////            Thread.start {
+////                new HttpClientUtil(connectionManagerFactory, defaultRequestConfig).post(url, [:])
+////            }
+////        }
+//
+//        new HttpClientUtil(connectionManagerFactory, defaultRequestConfig).post(url, [:])
+//        new IdleConnectionMonitorThread(connectionManagerFactory).start()
+//        sleep(50000)
+//        expect:
+//        true
+//    }
+
+    def "测试关闭线程"(){
+        setup:
+        def connectionManagerFactory = new PoolingConnectionManagerFactory()
+        Thread thread = new IdleConnectionMonitorThread(connectionManagerFactory)
+        thread.start()
+        try {
+
+        } finally {
+            thread.shutdown()
+        }
+        sleep(1000)
+        expect:
+        thread.alive == false
     }
 }
