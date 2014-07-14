@@ -17,13 +17,15 @@ class HttpClientUtilSpec extends Specification {
 
     private ClientAndServer mockServer
     private def url
+    private def urlSecure
 
     def setupSpec() {
     }
 
     def setup() {
-        mockServer = ClientAndServer.startClientAndServer(9999)
-        url = "http://localhost:9999/test"
+        mockServer = ClientAndServer.startClientAndServer(9090, 9443)
+        url = "http://localhost:9090/test"
+        urlSecure = "https://localhost:9443/test"
     }
 
     def cleanup() {
@@ -86,7 +88,17 @@ class HttpClientUtilSpec extends Specification {
         thrown(ConnectionPoolTimeoutException)
     }
 
-    def "测试定期清理未关闭的连接池"() {
+    def "测试https连接，使用不安全的信任全部证书和域名验证"() {
+        setup:
+        mockServer.when(HttpRequest.request().withURL(urlSecure)).respond(HttpResponse.response().withStatusCode(200).withHeader(new Header("Content-Type", "text/html")).withBody("hello world"))
+        def httpMessage = new HttpClientUtil(new PoolingConnectionManagerFactory(true)).post(urlSecure, [:])
+        expect:
+        httpMessage.body == "hello world"
+        httpMessage.statusCode == 200
+        httpMessage.contentType == "text/html"
+    }
+
+    def "测试定期清理未关闭的连接"() {
 
     }
 
@@ -112,7 +124,7 @@ class HttpClientUtilSpec extends Specification {
 //        true
 //    }
 
-    def "测试关闭线程"(){
+    def "测试关闭连接"() {
         setup:
         def connectionManagerFactory = new PoolingConnectionManagerFactory()
         Thread thread = new IdleConnectionMonitorThread(connectionManagerFactory)

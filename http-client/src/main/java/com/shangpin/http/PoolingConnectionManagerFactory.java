@@ -2,13 +2,25 @@ package com.shangpin.http;
 
 import org.apache.http.Consts;
 import org.apache.http.config.ConnectionConfig;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.HttpClientConnectionManager;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLContextBuilder;
+import org.apache.http.conn.ssl.SSLContexts;
+import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.impl.StaticLoggerBinder;
 
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -37,8 +49,25 @@ public class PoolingConnectionManagerFactory {
      */
     private long idleConnTimeout = 30000;
 
-    public PoolingConnectionManagerFactory() {
-        this.connectionManager = new PoolingHttpClientConnectionManager();
+    public PoolingConnectionManagerFactory() throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
+        this(false);
+    }
+
+    public PoolingConnectionManagerFactory(boolean isSecure) throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
+        if(isSecure){//TODO 默认信任全部，不安全
+            SSLContextBuilder sslContextBuilder = SSLContexts.custom().loadTrustMaterial(null,new TrustStrategy(){
+                @Override
+                public boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                    return true;
+                }
+            });
+            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContextBuilder.build(),SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create().register("https", sslConnectionSocketFactory).build();
+            this.connectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
+        }
+        else {
+            this.connectionManager = new PoolingHttpClientConnectionManager();
+        }
     }
 
     Object getObject() {
