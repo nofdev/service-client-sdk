@@ -6,8 +6,8 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.ssl.*;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
@@ -20,8 +20,6 @@ import java.nio.charset.Charset;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -87,25 +85,25 @@ public class HttpClientUtil {
     }
 
     public HttpMessageSimple get(String url, Map<String, String> params) throws IOException {
-        HttpClient httpClient = HttpClients.custom()
-                .setConnectionManager((PoolingHttpClientConnectionManager)connectionManagerFactory.getObject())
-                .build();
-        HttpPost post = new HttpPost(url);
+
         RequestConfig requestConfig = RequestConfig.custom()
                 .setConnectionRequestTimeout(defaultRequestConfig.getDefaultConnectionRequestTimeout())
                 .setConnectTimeout(defaultRequestConfig.getDefaultConnectionTimeout())
                 .setSocketTimeout(defaultRequestConfig.getDefaultSoTimeout())
                 .setExpectContinueEnabled(false)
                 .build();
-        post.setConfig(requestConfig);
+
 
         List<NameValuePair> pairList = new ArrayList<>();
         for (Map.Entry<String, String> entry : params.entrySet()) {
             NameValuePair nameValuePair = new BasicNameValuePair(entry.getKey(), entry.getValue());
             pairList.add(nameValuePair);
         }
-        post.setEntity(new UrlEncodedFormEntity(pairList, Charset.forName("UTF-8")));
-        HttpResponse httpResponse = httpClient.execute(post);
+
+        url = url+"?"+EntityUtils.toString(new UrlEncodedFormEntity(pairList, Charset.forName("UTF-8")));
+        HttpGet get = new HttpGet(url);
+        get.setConfig(requestConfig);
+        HttpResponse httpResponse = httpClient.execute(get);
         HttpEntity httpEntity = httpResponse.getEntity();
         String body = EntityUtils.toString(httpEntity);
         int statusCode = httpResponse.getStatusLine().getStatusCode();
@@ -116,7 +114,7 @@ public class HttpClientUtil {
             contentType = httpEntity.getContentType().getValue();
         }
         logger.debug("response entity is " + body);
-        post.releaseConnection();
+        get.releaseConnection();
         return new HttpMessageSimple(statusCode,contentType,body);
     }
 }
