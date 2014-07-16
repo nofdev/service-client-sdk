@@ -53,7 +53,7 @@ public class HttpClientUtil {
 //     */
 //    public HttpClientUtil() {
 //        this(new PoolingConnectionManagerFactory(), new DefaultRequestConfig(),false);
-//    }
+//        }
 
     public HttpMessageSimple post(String url, Map<String, String> params) throws IOException {
         HttpPost post = new HttpPost(url);
@@ -76,15 +76,46 @@ public class HttpClientUtil {
         String body = EntityUtils.toString(httpEntity);
         int statusCode = httpResponse.getStatusLine().getStatusCode();
         String contentType;
-        if (httpEntity.getContentType() == null) {
+        if(httpEntity.getContentType()==null){
             contentType = null;
-        } else {
+        }else {
             contentType = httpEntity.getContentType().getValue();
         }
         logger.debug("response entity is " + body);
         post.releaseConnection();
-        return new HttpMessageSimple(statusCode, contentType, body);
+        return new HttpMessageSimple(statusCode,contentType,body);
     }
+<<<<<<< .mine
+
+    public HttpMessageSimple get(String url, Map<String, String> params) throws IOException {
+        HttpClient httpClient = HttpClients.custom()
+                .setConnectionManager((PoolingHttpClientConnectionManager)connectionManagerFactory.getObject())
+                .build();
+        HttpPost post = new HttpPost(url);
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setConnectionRequestTimeout(defaultRequestConfig.getDefaultConnectionRequestTimeout())
+                .setConnectTimeout(defaultRequestConfig.getDefaultConnectionTimeout())
+                .setSocketTimeout(defaultRequestConfig.getDefaultSoTimeout())
+                .setExpectContinueEnabled(false)
+                .build();
+        post.setConfig(requestConfig);
+
+        List<NameValuePair> pairList = new ArrayList<>();
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            NameValuePair nameValuePair = new BasicNameValuePair(entry.getKey(), entry.getValue());
+            pairList.add(nameValuePair);
+
+
+
+
+
+
+
+
+
+
+
+=======
 
 //    public String post(String url, Map<String, String> params) throws IOException {
 //        HttpClient httpClient = HttpClients.custom()
@@ -114,4 +145,21 @@ public class HttpClientUtil {
 //    }
 
 
+>>>>>>> .theirs
+        }
+        post.setEntity(new UrlEncodedFormEntity(pairList, Charset.forName("UTF-8")));
+        HttpResponse httpResponse = httpClient.execute(post);
+        HttpEntity httpEntity = httpResponse.getEntity();
+        String body = EntityUtils.toString(httpEntity);
+        int statusCode = httpResponse.getStatusLine().getStatusCode();
+        String contentType;
+        if(httpEntity.getContentType()==null){
+            contentType = null;
+        }else {
+            contentType = httpEntity.getContentType().getValue();
+        }
+        logger.debug("response entity is " + body);
+        post.releaseConnection();
+        return new HttpMessageSimple(statusCode,contentType,body);
+    }
 }
