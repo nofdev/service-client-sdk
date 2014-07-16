@@ -17,13 +17,15 @@ class HttpClientUtilSpec extends Specification {
 
     private ClientAndServer mockServer
     private def url
+    private def urlSecure
 
     def setupSpec() {
     }
 
     def setup() {
-        mockServer = ClientAndServer.startClientAndServer(9999)
-        url = "http://localhost:9999/test"
+        mockServer = ClientAndServer.startClientAndServer(9090, 9443)
+        url = "http://localhost:9090/test"
+        urlSecure = "https://localhost:9443/test"
     }
 
     def cleanup() {
@@ -67,7 +69,6 @@ class HttpClientUtilSpec extends Specification {
         def connectionManagerFactory = new PoolingConnectionManagerFactory()
         connectionManagerFactory.setMaxTotalConnection(3)
         connectionManagerFactory.setMaxPerRoute(3)
-
         when:
         Thread.start {
             new HttpClientUtil(connectionManagerFactory, defaultRequestConfig).post(url, [:])
@@ -80,9 +81,61 @@ class HttpClientUtilSpec extends Specification {
         Thread.start {
             new HttpClientUtil(connectionManagerFactory, defaultRequestConfig).post(url, [:])
         }
+
         sleep(1000)
         new HttpClientUtil(connectionManagerFactory, defaultRequestConfig).post(url, [:])
         then:
         thrown(ConnectionPoolTimeoutException)
+    }
+
+    def "测试https连接，使用不安全的信任全部证书和域名验证"() {
+        setup:
+        mockServer.when(HttpRequest.request().withURL(urlSecure)).respond(HttpResponse.response().withStatusCode(200).withHeader(new Header("Content-Type", "text/html")).withBody("hello world"))
+        def httpMessage = new HttpClientUtil(new PoolingConnectionManagerFactory(true)).post(urlSecure, [:])
+        expect:
+        httpMessage.body == "hello world"
+        httpMessage.statusCode == 200
+        httpMessage.contentType == "text/html"
+    }
+
+    def "测试定期清理未关闭的连接"() {
+
+    }
+
+//    def "测试并发"(){
+//        setup:
+//        mockServer.when(HttpRequest.request().withURL(url)).respond(HttpResponse.response().withStatusCode(200).withBody("hello world").withDelay(new Delay(TimeUnit.SECONDS, 1)))
+//        def defaultRequestConfig = new DefaultRequestConfig()
+//        defaultRequestConfig.setDefaultConnectionRequestTimeout(20000)
+//        def connectionManagerFactory = new PoolingConnectionManagerFactory()
+//        connectionManagerFactory.setMaxTotalConnection(5)
+//        connectionManagerFactory.setMaxPerRoute(5)
+//
+////        for (int i=0;i<50;i++){
+////            Thread.start {
+////                new HttpClientUtil(connectionManagerFactory, defaultRequestConfig).post(url, [:])
+////            }
+////        }
+//
+//        new HttpClientUtil(connectionManagerFactory, defaultRequestConfig).post(url, [:])
+//        new IdleConnectionMonitorThread(connectionManagerFactory).start()
+//        sleep(50000)
+//        expect:
+//        true
+//    }
+
+    def "测试关闭连接"() {
+        setup:
+        def connectionManagerFactory = new PoolingConnectionManagerFactory()
+        Thread thread = new IdleConnectionMonitorThread(connectionManagerFactory)
+        thread.start()
+        try {
+
+        } finally {
+            thread.shutdown()
+        }
+        sleep(1000)
+        expect:
+        thread.alive == false
     }
 }

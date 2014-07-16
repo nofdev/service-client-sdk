@@ -2,9 +2,26 @@ package com.shangpin.http;
 
 import org.apache.http.Consts;
 import org.apache.http.config.ConnectionConfig;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
 import org.apache.http.config.SocketConfig;
+import org.apache.http.conn.HttpClientConnectionManager;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLContextBuilder;
+import org.apache.http.conn.ssl.SSLContexts;
+import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.impl.StaticLoggerBinder;
 
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -12,7 +29,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class PoolingConnectionManagerFactory {
 
-    private PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
+    private static final Logger logger = LoggerFactory.getLogger(PoolingConnectionManagerFactory.class);
+
+    private PoolingHttpClientConnectionManager connectionManager;
 
     //<!-- 连接池设置 -->
     /**
@@ -21,13 +40,35 @@ public class PoolingConnectionManagerFactory {
     private int maxTotalConnection = 500;
 
     /**
-     * 每个路由最大的连接数 默认为50
+     * 每个路由最大的连接数 默认为50 如果客户端需要连接的服务器端只有一个，可以设置maxTotalConnection和maxPerRoute相同
      */
     private int maxPerRoute = 50;
+
     /**
-     * 闲置超时时间，缺省为60秒钟
+     * 闲置超时时间，缺省为30秒钟
      */
-    private long idleConnTimeout = 60000;
+    private long idleConnTimeout = 30000;
+
+    public PoolingConnectionManagerFactory() throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
+        this(false);
+    }
+
+    public PoolingConnectionManagerFactory(boolean isSecure) throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
+        if(isSecure){//TODO 默认信任全部，不安全
+            SSLContextBuilder sslContextBuilder = SSLContexts.custom().loadTrustMaterial(null,new TrustStrategy(){
+                @Override
+                public boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                    return true;
+                }
+            });
+            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContextBuilder.build(),SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create().register("https", sslConnectionSocketFactory).build();
+            this.connectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
+        }
+        else {
+            this.connectionManager = new PoolingHttpClientConnectionManager();
+        }
+    }
 
     Object getObject() {
 //        PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
@@ -39,6 +80,7 @@ public class PoolingConnectionManagerFactory {
 
         connectionManager.setMaxTotal(maxTotalConnection);
         connectionManager.setDefaultMaxPerRoute(maxPerRoute);
+        //每次获取连接池管理器的时候才释放一次空闲连接远远不够
         connectionManager.closeIdleConnections(idleConnTimeout, TimeUnit.SECONDS);
         return connectionManager;
     }
@@ -58,4 +100,9 @@ public class PoolingConnectionManagerFactory {
     public void setMaxPerRoute(int maxPerRoute) {
         this.maxPerRoute = maxPerRoute;
     }
+
+    public long getIdleConnTimeout() {
+        return idleConnTimeout;
+    }
+
 }

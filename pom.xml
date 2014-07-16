@@ -67,6 +67,7 @@
                     <source>1.7</source>
                     <target>1.7</target>
                     <compilerId>groovy-eclipse-compiler</compilerId>
+                    <encoding>utf-8</encoding>
                     <!-- set verbose to be true if you want lots of uninteresting messages -->
                     <!-- <verbose>true</verbose> -->
                 </configuration>
