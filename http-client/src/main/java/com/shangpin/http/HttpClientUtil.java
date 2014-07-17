@@ -99,8 +99,11 @@ public class HttpClientUtil {
             NameValuePair nameValuePair = new BasicNameValuePair(entry.getKey(), entry.getValue());
             pairList.add(nameValuePair);
         }
+        if(pairList.size() > 0){
+            url = url+"?"+EntityUtils.toString(new UrlEncodedFormEntity(pairList, Charset.forName("UTF-8")));
+        }
 
-        url = url+"?"+EntityUtils.toString(new UrlEncodedFormEntity(pairList, Charset.forName("UTF-8")));
+
         HttpGet get = new HttpGet(url);
         get.setConfig(requestConfig);
         HttpResponse httpResponse = httpClient.execute(get);
