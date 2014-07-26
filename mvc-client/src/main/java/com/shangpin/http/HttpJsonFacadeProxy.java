@@ -46,10 +46,11 @@ public class HttpJsonFacadeProxy implements InvocationHandler {
         String postUrl = baseUrl + "/" + method.getName();
         logger.debug("The postUrl is " + postUrl);
 
+//        List<NameValuePair> params = new ArrayList<NameValuePair>();
         Map<String, String> params = new HashMap<>();
         ObjectMapper objectMapper = new ObjectMapper();
         String paramsStr = objectMapper.writeValueAsString(args);
-        params = objectMapper.readValue(paramsStr,Map.class);
+        params.put("params", paramsStr);
 
         HttpClientUtil httpClientUtil = new HttpClientUtil(connectionManagerFactory, defaultRequestConfig);
         String result = httpClientUtil.post(postUrl, params).getBody();
