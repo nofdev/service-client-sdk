@@ -15,15 +15,15 @@ import java.util.Map;
 /**
  * Created by Qiang on 6/3/14.
  */
-public class HttpJsonFacadeProxy implements InvocationHandler {
-    private static final Logger logger = LoggerFactory.getLogger(HttpJsonFacadeProxy.class);
+public class HttpJsonProxy implements InvocationHandler {
+    private static final Logger logger = LoggerFactory.getLogger(HttpJsonProxy.class);
 
     private Class<?> inter;
     private String url;
     private DefaultRequestConfig defaultRequestConfig = new DefaultRequestConfig();
     private PoolingConnectionManagerFactory connectionManagerFactory;
 
-    HttpJsonFacadeProxy(Class<?> inter, String url, PoolingConnectionManagerFactory connectionManagerFactory, DefaultRequestConfig defaultRequestConfig) {
+    HttpJsonProxy(Class<?> inter, String url, PoolingConnectionManagerFactory connectionManagerFactory, DefaultRequestConfig defaultRequestConfig) {
         this.inter = inter;
         this.url = url;
         if(connectionManagerFactory == null){
@@ -69,7 +69,7 @@ public class HttpJsonFacadeProxy implements InvocationHandler {
 
     public Object getObject() {
         Class<?>[] interfaces = {inter};
-        return Proxy.newProxyInstance(inter.getClassLoader(), interfaces, new HttpJsonFacadeProxy(inter, url, connectionManagerFactory, defaultRequestConfig));
+        return Proxy.newProxyInstance(inter.getClassLoader(), interfaces, new HttpJsonProxy(inter, url, connectionManagerFactory, defaultRequestConfig));
     }
 
     public void setInter(Class<?> inter) {

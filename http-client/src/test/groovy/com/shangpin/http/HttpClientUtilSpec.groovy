@@ -98,6 +98,9 @@ class HttpClientUtilSpec extends Specification {
         httpMessage.contentType == "text/html"
     }
 
+    /**
+     * TODO
+     */
     def "测试定期清理未关闭的连接"() {
 
     }

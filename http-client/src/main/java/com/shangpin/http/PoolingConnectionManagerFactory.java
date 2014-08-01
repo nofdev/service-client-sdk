@@ -65,6 +65,8 @@ public class PoolingConnectionManagerFactory {
         else {
             this.connectionManager = new PoolingHttpClientConnectionManager();
         }
+        IdleConnectionMonitorThread idleConnectionMonitorThread = new IdleConnectionMonitorThread(this);
+        idleConnectionMonitorThread.start();
     }
 
     Object getObject() {
@@ -77,8 +79,9 @@ public class PoolingConnectionManagerFactory {
 
         connectionManager.setMaxTotal(maxTotalConnection);
         connectionManager.setDefaultMaxPerRoute(maxPerRoute);
-        //每次获取连接池管理器的时候才释放一次空闲连接远远不够
+        //TODO 每次获取连接池管理器的时候才释放一次空闲连接远远不够
         connectionManager.closeIdleConnections(idleConnTimeout, TimeUnit.SECONDS);
+
         return connectionManager;
     }
 

@@ -17,7 +17,7 @@
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>log4j-over-slf4j</artifactId>
+            <artifactId>slf4j-log4j12</artifactId>
             <version>1.7.5</version>
         </dependency>
         <dependency>
@@ -134,12 +134,12 @@
         <snapshotRepository>
             <id>shangpin-snapshots</id>
             <name>Shangpin Snapshots</name>
-            <url>http://192.168.1.233:8081/nexus/content/repositories/shangpin-snapshots</url>
+            <url>http://nexus.sp.cn/nexus/content/repositories/shangpin-snapshots</url>
         </snapshotRepository>
         <repository>
             <id>shangpin-releases</id>
             <name>Shangpin Releases</name>
-            <url>http://192.168.1.233:8081/nexus/content/repositories/shangpin-releases</url>
+            <url>http://nexus.sp.cn/nexus/content/repositories/shangpin-releases</url>
         </repository>
     </distributionManagement>
 </project>

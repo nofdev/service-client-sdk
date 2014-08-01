@@ -13,7 +13,8 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -28,7 +29,7 @@ import java.util.Map;
  * http连接工具
  */
 public class HttpClientUtil {
-    private static Logger logger = Logger.getLogger(HttpClientUtil.class);
+    private static Logger logger = LoggerFactory.getLogger(HttpClientUtil.class);
 
     private PoolingConnectionManagerFactory connectionManagerFactory;
     private DefaultRequestConfig defaultRequestConfig;
@@ -64,24 +65,29 @@ public class HttpClientUtil {
         post.setConfig(requestConfig);
 
         List<NameValuePair> pairList = new ArrayList<>();
-        for (Map.Entry<String, String> entry : params.entrySet()) {
-            NameValuePair nameValuePair = new BasicNameValuePair(entry.getKey(), entry.getValue());
-            pairList.add(nameValuePair);
+        if (params != null) {
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                NameValuePair nameValuePair = new BasicNameValuePair(entry.getKey(), entry.getValue());
+                pairList.add(nameValuePair);
+            }
+        } else {
+            logger.trace("Request params do not exit");
         }
         post.setEntity(new UrlEncodedFormEntity(pairList, Charset.forName("UTF-8")));
         HttpResponse httpResponse = httpClient.execute(post);
+        logger.debug("{}",httpResponse.getStatusLine().getStatusCode());
         HttpEntity httpEntity = httpResponse.getEntity();
         String body = EntityUtils.toString(httpEntity);
         int statusCode = httpResponse.getStatusLine().getStatusCode();
         String contentType;
-        if(httpEntity.getContentType()==null){
+        if (httpEntity.getContentType() == null) {
             contentType = null;
-        }else {
+        } else {
             contentType = httpEntity.getContentType().getValue();
         }
         logger.debug("response entity is " + body);
         post.releaseConnection();
-        return new HttpMessageSimple(statusCode,contentType,body);
+        return new HttpMessageSimple(statusCode, contentType, body);
     }
 
     public HttpMessageSimple get(String url, Map<String, String> params) throws IOException {
@@ -99,8 +105,8 @@ public class HttpClientUtil {
             NameValuePair nameValuePair = new BasicNameValuePair(entry.getKey(), entry.getValue());
             pairList.add(nameValuePair);
         }
-        if(pairList.size() > 0){
-            url = url+"?"+EntityUtils.toString(new UrlEncodedFormEntity(pairList, Charset.forName("UTF-8")));
+        if (pairList.size() > 0) {
+            url = url + "?" + EntityUtils.toString(new UrlEncodedFormEntity(pairList, Charset.forName("UTF-8")));
         }
 
 
@@ -111,13 +117,13 @@ public class HttpClientUtil {
         String body = EntityUtils.toString(httpEntity);
         int statusCode = httpResponse.getStatusLine().getStatusCode();
         String contentType;
-        if(httpEntity.getContentType()==null){
+        if (httpEntity.getContentType() == null) {
             contentType = null;
-        }else {
+        } else {
             contentType = httpEntity.getContentType().getValue();
         }
         logger.debug("response entity is " + body);
         get.releaseConnection();
-        return new HttpMessageSimple(statusCode,contentType,body);
+        return new HttpMessageSimple(statusCode, contentType, body);
     }
 }
