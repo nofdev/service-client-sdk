@@ -30,7 +30,7 @@ public class IdleConnectionMonitorThread extends Thread {
             while (!shutdown) {
                 synchronized (this) {
                     wait(5000);
-                    logger.info(new Date()+"Closing idle connection");
+                    logger.trace("{} Closing idle connection",new Date());
                     // Close expired connections
                     connMgr.closeExpiredConnections();
                     // Optionally, close connections

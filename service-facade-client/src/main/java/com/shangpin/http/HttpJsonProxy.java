@@ -1,10 +1,15 @@
 package com.shangpin.http;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.lang.reflect.*;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,8 +47,54 @@ public class HttpJsonProxy implements InvocationHandler {
         this(inter, url, null, null);
     }
 
+//    private static final Method OBJECT_EQUALS = getObjectMethod("equals", Object.class);
+//
+//    private static final Method OBJECT_HASHCODE = getObjectMethod("hashCode");
+//
+//    private static Method getObjectMethod(String name, Class... types) {
+//        try {
+//            // null 'types' is OK.
+//            return Object.class.getMethod(name, types);
+//        } catch (NoSuchMethodException e) {
+//            throw new IllegalArgumentException(e);
+//        }
+//    }
+
+//    private boolean equalsInternal(Object me, Object other) {
+//        if (other == null) {
+//            return false;
+//        }
+//        if (other.getClass() != me.getClass()) {
+//            // Not same proxy type; false.
+//            // This may not be true for other scenarios.
+//        }
+//        InvocationHandler handler = Proxy.getInvocationHandler(other);
+//        if (!(handler instanceof EqualsAwareHandler)) {
+//            // the proxies behave differently.
+//            return false;
+//        }
+//        return ((EqualsAwareHandler) handler)._implementation.equals(_implementation);
+//    }
+
+
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    public Object invoke(Object proxy, Method method, Object[] args) throws IOException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, Throwable {
+////        TODO
+////        if (OBJECT_EQUALS == method) {
+////            return equalsInternal(proxy, args[0]);
+////        }
+//        logger.debug(OBJECT_HASHCODE.getName());
+//        logger.debug(method.getName());
+//        logger.debug("Is the hashCode method invoke? {}",OBJECT_HASHCODE.equals(method));
+//
+//        if (OBJECT_HASHCODE.equals(method)) {
+//            //TODO should be implementation's hashCode method
+//            return proxy.hashCode();
+//        }
+//        // toString() will fall through to the generic handling.
+        if("hashCode".equals(method.getName())){
+            return inter.hashCode();
+        }
         logger.debug("The url is " + url);
         String baseUrl = url.split("\\?")[0];
         logger.debug("The baseUrl is {}", baseUrl);
@@ -67,9 +118,9 @@ public class HttpJsonProxy implements InvocationHandler {
         JavaType javaType = objectMapper.getTypeFactory().constructType(method.getGenericReturnType());
         javaType = objectMapper.getTypeFactory().constructParametricType(HttpJsonResponse.class, javaType);
         HttpJsonResponse httpJsonResponse = objectMapper.readValue(result, javaType);
-        if(httpJsonResponse.getErr()==null){
+        if (httpJsonResponse.getErr() == null) {
             return httpJsonResponse.getVal();
-        }else {
+        } else {
             throw ExceptionUtil.getThrowableInstance(httpJsonResponse.getErr());
         }
 //        HttpJsonResponse httpJsonResponse = objectMapper.readValue(result, javaType);
@@ -99,7 +150,7 @@ public class HttpJsonProxy implements InvocationHandler {
 
     public Object getObject() {
         Class<?>[] interfaces = {inter};
-        return Proxy.newProxyInstance(inter.getClassLoader(), interfaces, new HttpJsonProxy(inter, url, connectionManagerFactory, defaultRequestConfig));
+        return Proxy.newProxyInstance(inter.getClassLoader(), interfaces, this);
     }
 
     public void setInter(Class<?> inter) {

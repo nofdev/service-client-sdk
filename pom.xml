@@ -113,7 +113,7 @@
     <modules>
         <module>service-facade-client</module>
         <module>http-client</module>
-        <module>mvc-client</module>
+        <module>mvc-service-client</module>
     </modules>
 
     <repositories>
