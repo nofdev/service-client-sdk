@@ -68,6 +68,29 @@ class HttpJsonProxySpec extends Specification {
         then:
         thrown(TestException)
     }
+
+    def "测试代理策略接口"() {
+        setup:
+        url = "http://localhost:9999/facade/json/com.shangpin.http/DemoFacade"
+        mockServer.when(
+                HttpRequest.request().withURL("${url}/${method}")
+        ).respond(
+                HttpResponse.response()
+                        .withStatusCode(200)
+                        .withBody(new JsonBuilder([callId: UUID.randomUUID().toString(), val: val, err: null]).toString())
+        )
+        def baseUrl = "http://localhost:9999"
+        def proxy = new HttpJsonProxy(DemoFacade, new DefaultProxyStrategyImpl(baseUrl))
+        def testFacadeService = proxy.getObject()
+        def result = testFacadeService."${method}"(*args);
+        expect:
+        result == exp
+
+        where:
+        method              | args                                     | val                                      | exp
+        "method1"           | []                                       | "hello world"                            | "hello world"
+        "getAllAttendUsers" | [new UserDTO(name: "zhangsan", age: 10)] | [new UserDTO(name: "zhangsan", age: 10)] | [new UserDTO(name: "zhangsan", age: 10)]
+    }
 }
 
 class UserDTO implements Serializable {
