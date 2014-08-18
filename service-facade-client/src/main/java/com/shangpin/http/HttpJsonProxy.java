@@ -1,10 +1,14 @@
 package com.shangpin.http;
 
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.*;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -67,6 +71,7 @@ public class HttpJsonProxy implements InvocationHandler {
         JavaType javaType = objectMapper.getTypeFactory().constructType(method.getGenericReturnType());
         javaType = objectMapper.getTypeFactory().constructParametricType(HttpJsonResponse.class, javaType);
         HttpJsonResponse httpJsonResponse = objectMapper.readValue(result, javaType);
+
         if(httpJsonResponse.getErr()==null){
             return httpJsonResponse.getVal();
         }else {

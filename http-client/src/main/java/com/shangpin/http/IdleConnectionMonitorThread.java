@@ -4,7 +4,6 @@ import org.apache.http.conn.HttpClientConnectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -30,7 +29,7 @@ public class IdleConnectionMonitorThread extends Thread {
             while (!shutdown) {
                 synchronized (this) {
                     wait(5000);
-                    logger.info(new Date()+"Closing idle connection");
+                    //logger.info(new Date()+"Closing idle connection");
                     // Close expired connections
                     connMgr.closeExpiredConnections();
                     // Optionally, close connections

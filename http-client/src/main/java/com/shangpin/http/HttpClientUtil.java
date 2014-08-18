@@ -74,6 +74,7 @@ public class HttpClientUtil {
             logger.trace("Request params do not exit");
         }
         post.setEntity(new UrlEncodedFormEntity(pairList, Charset.forName("UTF-8")));
+
         HttpResponse httpResponse = httpClient.execute(post);
         logger.debug("{}",httpResponse.getStatusLine().getStatusCode());
         HttpEntity httpEntity = httpResponse.getEntity();
@@ -109,7 +110,7 @@ public class HttpClientUtil {
             url = url + "?" + EntityUtils.toString(new UrlEncodedFormEntity(pairList, Charset.forName("UTF-8")));
         }
 
-
+        logger.info("params is {}",url);
         HttpGet get = new HttpGet(url);
         get.setConfig(requestConfig);
         HttpResponse httpResponse = httpClient.execute(get);
