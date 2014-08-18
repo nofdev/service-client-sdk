@@ -6,8 +6,8 @@ package com.shangpin.http;
 public class ExceptionMessage {
     private String name;
     private String msg;
-    private String stack;
     private ExceptionMessage cause;
+    private String stack;
 
     public String getName() {
         return name;

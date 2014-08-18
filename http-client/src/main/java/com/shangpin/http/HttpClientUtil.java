@@ -76,7 +76,7 @@ public class HttpClientUtil {
         post.setEntity(new UrlEncodedFormEntity(pairList, Charset.forName("UTF-8")));
 
         HttpResponse httpResponse = httpClient.execute(post);
-        logger.debug("{}",httpResponse.getStatusLine().getStatusCode());
+        logger.debug("The http response status code is {}",httpResponse.getStatusLine().getStatusCode());
         HttpEntity httpEntity = httpResponse.getEntity();
         String body = EntityUtils.toString(httpEntity);
         int statusCode = httpResponse.getStatusLine().getStatusCode();
