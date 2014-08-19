@@ -22,7 +22,7 @@ public class DefaultProxyStrategyImpl implements ProxyStrategy {
 
     private String baseURL;
 
-    DefaultProxyStrategyImpl(String baseURL){
+    public DefaultProxyStrategyImpl(String baseURL){
         this.baseURL = baseURL;
     }
 
