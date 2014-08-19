@@ -32,6 +32,7 @@ public class ExceptionUtil {
     }
 
     public static Throwable getThrowableInstance(ExceptionMessage exceptionMessage) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        System.out.println("==============>"+exceptionMessage.getMsg());
         Class<?> cl = Class.forName(exceptionMessage.getName());
         Class[] params = {String.class};
         Constructor constructor = cl.getConstructor(params);//找到异常类中带有一个String参数的 构造函数
