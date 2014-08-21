@@ -70,6 +70,7 @@ class HttpJsonProxySpec extends Specification {
         then:
         thrown(TestException)
     }
+
     def "测试JodaTime的序列化与反序列化"(){
         setup:
         mockServer.when(
