@@ -3,6 +3,7 @@ package com.shangpin.http;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.xml.internal.ws.org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,13 +69,19 @@ public class HttpJsonProxy implements InvocationHandler {
         logger.debug("Default connection pool idle connection time is " + connectionManagerFactory.getIdleConnTimeout());
         String result = httpClientUtil.post(postUrl, params).getBody();
         logger.debug("The request return " + result);
-        JavaType javaType = objectMapper.getTypeFactory().constructType(method.getGenericReturnType());
+        logger.debug("The method return type is {}", method.getGenericReturnType());
+        JavaType javaType;
+        if (method.getGenericReturnType() != void.class) {
+            javaType = objectMapper.getTypeFactory().constructType(method.getGenericReturnType());
+        } else {
+            javaType = objectMapper.getTypeFactory().constructType(Object.class);
+        }
         javaType = objectMapper.getTypeFactory().constructParametricType(HttpJsonResponse.class, javaType);
         HttpJsonResponse httpJsonResponse = objectMapper.readValue(result, javaType);
 
-        if(httpJsonResponse.getErr()==null){
+        if (httpJsonResponse.getErr() == null) {
             return httpJsonResponse.getVal();
-        }else {
+        } else {
             throw ExceptionUtil.getThrowableInstance(httpJsonResponse.getErr());
         }
 //        HttpJsonResponse httpJsonResponse = objectMapper.readValue(result, javaType);

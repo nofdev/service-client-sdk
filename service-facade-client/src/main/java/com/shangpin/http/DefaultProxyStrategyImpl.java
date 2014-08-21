@@ -1,15 +1,13 @@
 package com.shangpin.http;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +20,7 @@ public class DefaultProxyStrategyImpl implements ProxyStrategy {
 
     private String baseURL;
 
-    public DefaultProxyStrategyImpl(String baseURL){
+    public DefaultProxyStrategyImpl(String baseURL) {
         this.baseURL = baseURL;
     }
 
@@ -56,6 +54,7 @@ public class DefaultProxyStrategyImpl implements ProxyStrategy {
     public Map<String, String> getParams(Object[] args) throws JsonProcessingException {
         Map<String, String> params = new HashMap<>();
         ObjectMapper objectMapper = new ObjectMapper();
+//        objectMapper.registerModule(new JodaModule());
         objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
@@ -68,6 +67,7 @@ public class DefaultProxyStrategyImpl implements ProxyStrategy {
     @Override
     public Object getResult(Method method, HttpMessageSimple httpMessageSimple) throws Throwable {
         ObjectMapper objectMapper = new ObjectMapper();
+//        objectMapper.registerModule(new JodaModule());
         objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
