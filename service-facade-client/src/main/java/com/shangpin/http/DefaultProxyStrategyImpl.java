@@ -73,7 +73,15 @@ public class DefaultProxyStrategyImpl implements ProxyStrategy {
 
         String result = httpMessageSimple.getBody();
         logger.debug("The request return " + result);
-        JavaType javaType = objectMapper.getTypeFactory().constructType(method.getGenericReturnType());
+        logger.debug("The method return type is {}", method.getGenericReturnType());
+        JavaType javaType;
+        if (method.getGenericReturnType() != void.class) {
+            logger.debug("The method return type is not void");
+            javaType = objectMapper.getTypeFactory().constructType(method.getGenericReturnType());
+        } else {
+            logger.debug("The method return type is void");
+            javaType = objectMapper.getTypeFactory().constructType(Object.class);
+        }
         javaType = objectMapper.getTypeFactory().constructParametricType(HttpJsonResponse.class, javaType);
         HttpJsonResponse httpJsonResponse = objectMapper.readValue(result, javaType);
         if (httpJsonResponse.getErr() == null) {

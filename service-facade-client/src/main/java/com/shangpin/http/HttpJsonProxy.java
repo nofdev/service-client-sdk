@@ -7,9 +7,14 @@ import com.sun.xml.internal.ws.org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -101,47 +106,49 @@ public class HttpJsonProxy implements InvocationHandler {
             HttpMessageSimple response = httpClientUtil.post(remoteURL, params);
             return proxyStrategy.getResult(method, response);
         } else {
-        logger.debug("The url is " + url);
-        String baseUrl = url.split("\\?")[0];
-        logger.debug("The baseUrl is {}", baseUrl);
-        String postUrl = baseUrl + "/" + method.getName();
-        logger.debug("The postUrl is {}", postUrl);
+            logger.debug("The url is " + url);
+            String baseUrl = url.split("\\?")[0];
+            logger.debug("The baseUrl is {}", baseUrl);
+            String postUrl = baseUrl + "/" + method.getName();
+            logger.debug("The postUrl is {}", postUrl);
 
-        Map<String, String> params = new HashMap<>();
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            Map<String, String> params = new HashMap<>();
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        String paramsStr = objectMapper.writeValueAsString(args);
-        logger.debug("The params string is {}", paramsStr);
+            String paramsStr = objectMapper.writeValueAsString(args);
+            logger.debug("The params string is {}", paramsStr);
 //        params = objectMapper.readValue(paramsStr, List.class);
-        params.put("params", paramsStr);
+            params.put("params", paramsStr);
 
-        HttpClientUtil httpClientUtil = new HttpClientUtil(connectionManagerFactory, defaultRequestConfig);
-        logger.debug("Default connection pool idle connection time is " + connectionManagerFactory.getIdleConnTimeout());
-        String result = httpClientUtil.post(postUrl, params).getBody();
-        logger.debug("The request return " + result);
-        logger.debug("The method return type is {}", method.getGenericReturnType());
-        JavaType javaType;
-        if (method.getGenericReturnType() != void.class) {
-            javaType = objectMapper.getTypeFactory().constructType(method.getGenericReturnType());
-        } else {
-            javaType = objectMapper.getTypeFactory().constructType(Object.class);
-        }
-        javaType = objectMapper.getTypeFactory().constructParametricType(HttpJsonResponse.class, javaType);
-        HttpJsonResponse httpJsonResponse = objectMapper.readValue(result, javaType);
+            HttpClientUtil httpClientUtil = new HttpClientUtil(connectionManagerFactory, defaultRequestConfig);
+            logger.debug("Default connection pool idle connection time is " + connectionManagerFactory.getIdleConnTimeout());
+            String result = httpClientUtil.post(postUrl, params).getBody();
+            logger.debug("The request return " + result);
+            logger.debug("The method return type is {}", method.getGenericReturnType());
+            JavaType javaType;
+            if (method.getGenericReturnType() != void.class) {
+                logger.debug("The method return type is not void");
+                javaType = objectMapper.getTypeFactory().constructType(method.getGenericReturnType());
+            } else {
+                logger.debug("The method return type is void");
+                javaType = objectMapper.getTypeFactory().constructType(Object.class);
+            }
+            javaType = objectMapper.getTypeFactory().constructParametricType(HttpJsonResponse.class, javaType);
+            HttpJsonResponse httpJsonResponse = objectMapper.readValue(result, javaType);
 
-        if (httpJsonResponse.getErr() == null) {
-            return httpJsonResponse.getVal();
-        } else {
-            throw ExceptionUtil.getThrowableInstance(httpJsonResponse.getErr());
-        }
+            if (httpJsonResponse.getErr() == null) {
+                return httpJsonResponse.getVal();
+            } else {
+                throw ExceptionUtil.getThrowableInstance(httpJsonResponse.getErr());
+            }
         }
     }
 
     public Object getObject() {
         Class<?>[] interfaces = {inter};
-        return Proxy.newProxyInstance(inter.getClassLoader(), interfaces, new HttpJsonProxy(inter, url, connectionManagerFactory, defaultRequestConfig));
+        return Proxy.newProxyInstance(inter.getClassLoader(), interfaces, this);
     }
 
     public void setInter(Class<?> inter) {

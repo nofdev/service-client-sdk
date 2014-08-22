@@ -71,19 +71,19 @@ class HttpJsonProxySpec extends Specification {
         thrown(TestException)
     }
 
-    def "测试JodaTime的序列化与反序列化"(){
-        setup:
-        mockServer.when(
-                HttpRequest.request()
-                        .withURL("${url}/method1")
-        ).respond(
-                HttpResponse.response()
-                        .withStatusCode(200)
-                        .withBody(new JsonBuilder([callId: UUID.randomUUID().toString(), val: val, err: null]).toString())
-        )
-        def proxy = new HttpJsonProxy(DemoFacade, url)
-        def testFacadeService = proxy.getObject()
-	}
+//    def "测试JodaTime的序列化与反序列化"(){
+//        setup:
+//        mockServer.when(
+//                HttpRequest.request()
+//                        .withURL("${url}/method1")
+//        ).respond(
+//                HttpResponse.response()
+//                        .withStatusCode(200)
+//                        .withBody(new JsonBuilder([callId: UUID.randomUUID().toString(), val: val, err: null]).toString())
+//        )
+//        def proxy = new HttpJsonProxy(DemoFacade, url)
+//        def testFacadeService = proxy.getObject()
+//	}
 
     def "测试代理策略接口"() {
         setup:
@@ -106,13 +106,14 @@ class HttpJsonProxySpec extends Specification {
         method              | args                                     | val                                      | exp
         "method1"           | []                                       | "hello world"                            | "hello world"
         "getAllAttendUsers" | [new UserDTO(name: "zhangsan", age: 10)] | [new UserDTO(name: "zhangsan", age: 10)] | [new UserDTO(name: "zhangsan", age: 10)]
+        "sayHello"          | []                                       | null                                     | null
     }
 
-    def "Bugfix 如果接口方法返回是void的话会报错"() {
+    def "Bugfix，如果接口方法返回是void的话会报错"() {
         setup:
         mockServer.when(
                 HttpRequest.request()
-                        .withURL("${url}/getAllAttendUsers")
+                        .withURL("${url}/sayHello")
         ).respond(
                 HttpResponse.response()
                         .withStatusCode(200)
