@@ -1,4 +1,4 @@
-package com.shangpin.http
+package org.nofdev.http
 
 import groovy.json.JsonBuilder
 import org.joda.time.DateTime
@@ -20,7 +20,7 @@ class HttpJsonProxySpec extends Specification {
 
     def setup() {
         mockServer = ClientAndServer.startClientAndServer(9999)
-        url = "http://localhost:9999/com.shangpin.http/DemoFacade"
+        url = "http://localhost:9999/org.nofdev.http/DemoFacade"
     }
 
     def cleanup() {
@@ -52,7 +52,7 @@ class HttpJsonProxySpec extends Specification {
 
     def "测试能否正常的代理一个远程接口抛出的异常"() {
         setup:
-        def exceptionMessage = new ExceptionMessage(name: "com.shangpin.http.TestException", msg: "Test")
+        def exceptionMessage = new ExceptionMessage(name: "org.nofdev.http.TestException", msg: "Test")
         mockServer.when(
                 HttpRequest.request()
                         .withURL("${url}/method1")
@@ -87,7 +87,7 @@ class HttpJsonProxySpec extends Specification {
 
     def "测试代理策略接口"() {
         setup:
-        url = "http://localhost:9999/facade/json/com.shangpin.http/DemoFacade"
+        url = "http://localhost:9999/facade/json/org.nofdev.http/DemoFacade"
         mockServer.when(
                 HttpRequest.request().withURL("${url}/${method}")
         ).respond(

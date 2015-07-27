@@ -1,4 +1,4 @@
-package com.shangpin.http
+package org.nofdev.http
 
 import org.apache.http.conn.ConnectionPoolTimeoutException
 import org.mockserver.integration.ClientAndServer

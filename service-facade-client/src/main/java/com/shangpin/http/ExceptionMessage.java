@@ -1,4 +1,4 @@
-package com.shangpin.http;
+package org.nofdev.http;
 
 /**
  * Created by Qiang on 7/31/14.

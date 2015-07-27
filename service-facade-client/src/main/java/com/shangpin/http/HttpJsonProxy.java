@@ -1,4 +1,4 @@
-package com.shangpin.http;
+package org.nofdev.http;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;

@@ -1,4 +1,4 @@
-package com.shangpin.http;
+package org.nofdev.http;
 
 import org.apache.http.Consts;
 import org.apache.http.config.ConnectionConfig;

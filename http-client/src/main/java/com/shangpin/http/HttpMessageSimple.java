@@ -1,4 +1,4 @@
-package com.shangpin.http;
+package org.nofdev.http;
 
 /**
  * 一个简化的HttpMessage，只关心statusCode，contentType和转成String类型的body
