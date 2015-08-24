@@ -3,6 +3,7 @@ package org.nofdev.http;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.nofdev.servicefacade.HttpJsonResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
