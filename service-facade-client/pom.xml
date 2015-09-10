@@ -11,6 +11,7 @@
 
     <artifactId>service-facade-client</artifactId>
     <packaging>jar</packaging>
+    <version>1.1</version>
 
     <build>
         <plugins>
