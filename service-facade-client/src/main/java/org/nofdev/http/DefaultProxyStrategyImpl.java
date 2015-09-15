@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
+import org.nofdev.servicefacade.HttpJsonResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
