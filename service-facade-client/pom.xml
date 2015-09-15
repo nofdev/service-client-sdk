@@ -11,7 +11,7 @@
 
     <artifactId>service-facade-client</artifactId>
     <packaging>jar</packaging>
-    <version>1.1</version>
+    <version>1.1.0</version>
 
     <build>
         <plugins>
@@ -32,11 +32,11 @@
     </build>
 
     <dependencies>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.3.3</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.httpcomponents</groupId>-->
+            <!--<artifactId>httpclient</artifactId>-->
+            <!--<version>4.5</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -50,7 +50,7 @@
         <dependency>
             <groupId>org.nofdev</groupId>
             <artifactId>http-client</artifactId>
-            <version>1.0</version>
+            <version>1.1.0</version>
         </dependency>
     </dependencies>
 </project>
