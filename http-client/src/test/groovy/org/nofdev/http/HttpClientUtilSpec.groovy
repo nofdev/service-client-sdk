@@ -9,6 +9,7 @@ import org.mockserver.model.HttpResponse
 import spock.lang.Specification
 
 import java.util.concurrent.TimeUnit
+import java.util.zip.GZIPOutputStream
 
 /**
  * Created by Qiang on 7/4/14.
@@ -35,6 +36,22 @@ class HttpClientUtilSpec extends Specification {
     def "一个基本的POST请求测试"() {
         setup:
         mockServer.when(HttpRequest.request().withURL(url)).respond(HttpResponse.response().withStatusCode(200).withHeader(new Header("Content-Type", "text/html")).withBody("hello world"))
+        def httpMessage = new HttpClientUtil(new PoolingConnectionManagerFactory()).post(url, [:])
+        expect:
+        httpMessage.body == "hello world"
+        httpMessage.statusCode == 200
+        httpMessage.contentType == "text/html"
+    }
+
+    def "测试 gzip 压缩"() {
+        setup:
+        mockServer.when(HttpRequest.request().withURL(url)).
+                respond(
+                        HttpResponse.response().
+                                withStatusCode(200).
+                                withHeaders([new Header("Content-Type", "text/html"),new Header("Content-Encoding", "gzip")]).
+                                withBody(compress("hello world".getBytes("UTF-8")))
+                )
         def httpMessage = new HttpClientUtil(new PoolingConnectionManagerFactory()).post(url, [:])
         expect:
         httpMessage.body == "hello world"
@@ -105,7 +122,10 @@ class HttpClientUtilSpec extends Specification {
 
     }
 
-//    def "测试并发"(){
+    /**
+     * TODO
+     */
+    def "测试并发"() {
 //        setup:
 //        mockServer.when(HttpRequest.request().withURL(url)).respond(HttpResponse.response().withStatusCode(200).withBody("hello world").withDelay(new Delay(TimeUnit.SECONDS, 1)))
 //        def defaultRequestConfig = new DefaultRequestConfig()
@@ -125,7 +145,7 @@ class HttpClientUtilSpec extends Specification {
 //        sleep(50000)
 //        expect:
 //        true
-//    }
+    }
 
     def "测试关闭连接"() {
         setup:
@@ -140,5 +160,24 @@ class HttpClientUtilSpec extends Specification {
         sleep(1000)
         expect:
         thread.alive == false
+    }
+
+    private byte[] compress(byte[] data) throws Exception {
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        // 压缩
+        GZIPOutputStream gos = new GZIPOutputStream(baos);
+
+        gos.write(data, 0, data.length);
+
+        gos.finish();
+
+        byte[] output = baos.toByteArray();
+
+        baos.flush();
+        baos.close();
+
+        return output;
     }
 }
