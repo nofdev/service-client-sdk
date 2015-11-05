@@ -1,4 +1,6 @@
-package org.nofdev.http;
+package org.nofdev.servicefacade;
+
+import org.nofdev.http.ExceptionMessage;
 
 import java.io.Serializable;
 
